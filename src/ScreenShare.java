@@ -26,6 +26,32 @@ import javax.imageio.stream.ImageInputStream;
 import javax.imageio.stream.MemoryCacheImageInputStream;
 import javax.swing.JFrame;
 
+class RenderThread extends Thread {
+	ArrayList<BufferedImage> renderBuffer = new ArrayList<BufferedImage>();
+	ImagePanel panel;
+
+	public RenderThread( ArrayList<BufferedImage> renderBuffer, ImagePanel p  ) {
+		this.renderBuffer = renderBuffer; 
+		this.panel = p;
+		this.start();
+	}
+
+	public void run (){
+		for( int i=0 ; i<30 ; i++ ) {
+			System.out.println( "render" );
+			panel.repaint(); 
+			panel.setImg( renderBuffer.get( i ) );
+
+			try{ 
+				Thread.sleep( 130 );
+			}
+			catch( Exception e ){ 
+
+			}
+		}
+	}
+}
+
 public class ScreenShare {
 
 	public static void main(String[] args) {
@@ -93,8 +119,10 @@ public class ScreenShare {
 
 	private void client(String serverAddr, int port) {
 		JFrame frame = new JFrame();
+		frame.setTitle( "Screen Share");
 		ImagePanel panel = new ImagePanel();
 		ArrayList<BufferedImage> imageBuffer = new ArrayList<BufferedImage>();
+		ArrayList<BufferedImage> renderBuffer = new ArrayList<BufferedImage>();
 
 		frame.setResizable(true);
 		frame.add(panel);
@@ -111,31 +139,38 @@ public class ScreenShare {
 				panel.repaint();
 				
 				// adding the current image into the buffer 
-				if( imageBuffer.size() > 100 ) {
-					panel.repaint(); 
-					panel.setImg( ScreenShare.resize( imageBuffer.get( frameCount ), frame.getSize().width - 50 , frame.getSize().height - 50 ) );
-					frameCount++;
+				if( imageBuffer.size() > 30 ) {
+					renderBuffer = ( ArrayList<BufferedImage> )imageBuffer.clone();
+					imageBuffer.clear();
 
-					try{ 
-						Thread.sleep( 4 );
-					}
-					catch( Exception e ) {
+					new RenderThread( renderBuffer, panel );
+					
 
-					}
-
-					// for( int i=0; i<= 200 ; i++ ) {
-						
-					// 	panel.repaint();
-					// 	panel.setImg( ScreenShare.resize( imageBuffer.get( i ), frame.getSize().width - 50 , frame.getSize().height - 50 ) );
+					// if( frameCount <= 30 ) {
+					// 	new RenderThread( imageBuffer, panel );
 					// }
-					// imageBuffer.clear();
+					// else {
+					// 	new RenderThread( renderBuffer, panel );
+					// 	renderBuffer.clear();
+					// }
+					
+					// renderBuffer.add( imageBuffer.get( frameCount ) );
+					// frameCount++;
+					
+					// panel.repaint(); 
+					// panel.setImg( imageBuffer.get( frameCount ) );
+					// // panel.setImg( ScreenShare.resize( imageBuffer.get( 0 ), frame.getSize().width - 50 , frame.getSize().height - 50 ) );
+					
+					// // imageBuffer.remove( frameCount <= 30 ? 30 - frameCount : frameCount - 30 );	
+					// // imageBuffer.remove( 0 );
+					// frameCount++;
 				}
 				else {
 					System.out.println( "Buffer Size :" + imageBuffer.size() );
 				}
-				
-				imageBuffer.add( ImageIO.read( inputStream ) );
 
+				imageBuffer.add( ImageIO.read( inputStream ) );
+				
 				socket.close();
 				
 				// socket = new Socket(serverAddr, port);
