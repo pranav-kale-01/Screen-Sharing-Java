@@ -131,6 +131,9 @@ public class ScreenShare {
 
 		try {
 
+			long startTime = System.currentTimeMillis();
+			Random rand = new Random();
+
 			int frameCount = 0 ;
 			while(true) {
 				socket = new Socket(serverAddr, port);
@@ -138,12 +141,22 @@ public class ScreenShare {
 				
 				panel.repaint();
 				
-				// adding the current image into the buffer 
-				if( imageBuffer.size() > 30 ) {
-					renderBuffer = ( ArrayList<BufferedImage> )imageBuffer.clone();
+				if( startTime > 1000 ){
+					
+					renderBuffer = ( ArrayList<BufferedImage> ) imageBuffer.clone();
 					imageBuffer.clear();
 
 					new RenderThread( renderBuffer, panel );
+
+					startTime = System.currentTimeMillis();
+				}
+
+				// adding the current image into the buffer 
+				// if( imageBuffer.size() > 30 ) {
+				// 	renderBuffer = ( ArrayList<BufferedImage> )imageBuffer.clone();
+				// 	imageBuffer.clear();
+
+				// 	new RenderThread( renderBuffer, panel );
 					
 
 					// if( frameCount <= 30 ) {
@@ -164,13 +177,12 @@ public class ScreenShare {
 					// // imageBuffer.remove( frameCount <= 30 ? 30 - frameCount : frameCount - 30 );	
 					// // imageBuffer.remove( 0 );
 					// frameCount++;
-				}
+				// }
 				else {
 					System.out.println( "Buffer Size :" + imageBuffer.size() );
 				}
 
 				imageBuffer.add( ImageIO.read( inputStream ) );
-				
 				socket.close();
 				
 				// socket = new Socket(serverAddr, port);
