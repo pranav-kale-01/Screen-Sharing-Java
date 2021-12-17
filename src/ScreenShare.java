@@ -40,7 +40,6 @@ public class ScreenShare {
 
 	public static void main(String[] args) {
 		new ScreenShare().interactive();
-		// new ScreenShare().loadGui();
 	}
 
 	private void loadGui() {
@@ -91,49 +90,8 @@ public class ScreenShare {
 				String s = tf.getText();
 				String s2 = tf2.getText();
 
-				// try {
 				intepretCommand( "client " + s + " " + s2 );
-					// client( s , Integer.parseInt( s2 ) );
-
-				// }
-				// catch( IOException ioe ) {
-
-				// 	ioe.printStackTrace();
-				// }
-				
-
-				// if( s.length() != 0 ) {
-				// 	// dividing the ip using '.'
-
-				// 	int count=0; 
-				// 	for( int i=0; i<s.length(); i++ ) {
-				// 		if( s.charAt(i) == '.' ) {
-				// 			count++;
-				// 		}
-				// 	}
-
-				// 	if( count != 3 ) {
-				// 		// TODO:
-				// 		// showing dialog - Not Valid
-				// 	}
-				// 	else {
-				// 		String s2 = tf2.getText();
-				// 		if( s2.length() != 0 ) {
-				// 			// checking if there is a host at the endpoint 
-				// 			try {
-				// 				// swtiching screens, running the client application 
-				// 				System.out.println("Connecting to meeting at " + s + ":"+s2 );
-
-				// 				client( s , Integer.parseInt( s2 ) );
-				// 			}
-				// 			catch( Exception e ) {
-				// 				// TODO:
-				// 				// show dialog - Invalid meeting endpoint 
-				// 				System.out.println("Invalid meeting endpoint ");
-				// 			}
-				// 		}
-				// 	}
-				// }
+					
 			}
 		});
 		f.add( btn );
@@ -253,10 +211,6 @@ public class ScreenShare {
 		Dimension d = frame.getContentPane().getPreferredSize();
 		panel.setSize( (int) d.getWidth()  , (int) d.getHeight() );
 
-		// Label fps = new Label();
-		// fps.setBounds( (int) d.getWidth() - 100 , 50 , 40, 20 );
-		// frame.add(fps);
-
 		try 
 		{
 			long startTime = System.currentTimeMillis();
@@ -310,10 +264,8 @@ public class ScreenShare {
 
 			while(true){
 				try{
-					
 					socket = server.accept();
 					InetAddress addr = socket.getInetAddress();
-					// System.out.println( "Received Connection From " + addr.getCanonicalHostName() + " at " + addr.getHostAddress() );
 					
 					ObjectOutputStream outstream = new ObjectOutputStream(socket.getOutputStream());
 					BufferedImage img;

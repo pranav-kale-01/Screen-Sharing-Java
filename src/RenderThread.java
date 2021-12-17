@@ -18,7 +18,6 @@ public class RenderThread extends Thread {
 
 	public void run (){
 		for( int i=0 ; i< renderBuffer.size() ; i++ ) {
-			// System.out.println( "size -" + renderBuffer.size() );
 			panel.repaint(); 
 			panel.setImg( resize( renderBuffer.get( i ) ) );
 
