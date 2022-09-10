@@ -22,30 +22,34 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.util.Random;
+import java.net.SocketException;s
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
 public class ScreenShare {
 	ServerSocket  server;
 	Socket socket;	
 	boolean flag;
+	RenderThread runningThread;
 
 	public static void main(String[] args) {
 		ScreenShare s = new ScreenShare();
-		// s.interactive();
 		s.loadGui();
+
+		System.out.println("End of program");
+		// s.interactive();
 	}
 
 	private void loadGui() {
 		Font large = new Font("Times New Roman", Font.PLAIN, 22 );
 
 		JFrame f = new JFrame();
+		f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		f.setResizable(false);
 		f.setVisible(true);
 		f.setSize( 400, 600 ); 	
@@ -84,14 +88,20 @@ public class ScreenShare {
 		Button btn = new Button("Join");
 		btn.setBounds( 80, 320, 200, 50 );
 		btn.setFont( large ); 
+
 		btn.addActionListener( new ActionListener( ) {
 			public void actionPerformed( ActionEvent ae ) {
-				// checking if the ip is valid
 				String s = tf.getText();
 				String s2 = tf2.getText();
 
-				intepretCommand( "client " + s + " " + s2 );
-					
+				try {
+					// creating a swing worker to execute client function on 
+					ClientWorker cw = new ClientWorker(s, Integer.parseInt(s2));
+					cw.execute();
+				}
+				catch( Exception e ){
+					e.printStackTrace();
+				}
 			}
 		});
 		f.add( btn );
@@ -168,7 +178,9 @@ public class ScreenShare {
 			String serverAddr = tokenizer.nextToken();
 			String port = tokenizer.nextToken();
 			try {
-				client(serverAddr, Integer.parseInt(port));
+				// creating a swing worker to execute client function on 
+				ClientWorker cw = new ClientWorker(serverAddr, Integer.parseInt(port));
+				cw.execute();
 			}
 			catch( Exception e ){
 				e.printStackTrace();
@@ -190,17 +202,20 @@ public class ScreenShare {
 		ImagePanel panel = new ImagePanel();
 		ArrayList<BufferedImage> imageBuffer = new ArrayList<BufferedImage>();
 		ArrayList<BufferedImage> renderBuffer = new ArrayList<BufferedImage>();
-
+		
+		// configuring frame
+		frame.setDefaultCloseOperation( WindowConstants.EXIT_ON_CLOSE );
 		frame.setTitle( "Virtual Classroom" );
 		frame.setResizable(true);
+		frame.getContentPane().setPreferredSize(new Dimension( 1366, 768) );
 		frame.setVisible(true);
-		frame.getContentPane().setPreferredSize( new Dimension( 1366, 768 ) );
-		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		frame.addWindowListener(new WindowAdapter() {
 			@Override
-			public void windowClosing(WindowEvent event) {
+			public void windowClosing( WindowEvent we) {
+				runningThread.interrupt();
 				flag = false;
-				frame.dispose();
+				System.out.println("Closing window");
+				close();
 			}
 		});
 		frame.setLayout( null );
@@ -220,12 +235,14 @@ public class ScreenShare {
 				panel.repaint();
 		
 				if( startTime > 1000 ){
-					renderBuffer =  (ArrayList<BufferedImage>) imageBuffer.clone();
-					
+					renderBuffer = ( ArrayList<BufferedImage> ) imageBuffer.clone();
 					imageBuffer.clear();
 
-					new RenderThread( renderBuffer, panel, panel.getSize() );
+					runningThread = new RenderThread( renderBuffer, panel, new Dimension( 1366, 768) );
 					startTime = System.currentTimeMillis();
+				}
+				else {
+					startTime += 1;
 				}
 
 				imageBuffer.add( ImageIO.read( inputStream ) );
