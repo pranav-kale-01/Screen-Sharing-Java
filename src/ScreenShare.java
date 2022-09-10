@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -22,7 +23,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
+import java.net.SocketException;s
 import java.util.Scanner;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
@@ -198,12 +199,12 @@ public class ScreenShare {
 
 	private void client(String serverAddr, int port) throws IOException {
 		flag = true;
+		JFrame frame = new JFrame();
+		
+		ImagePanel panel = new ImagePanel();
 		ArrayList<BufferedImage> imageBuffer = new ArrayList<BufferedImage>();
 		ArrayList<BufferedImage> renderBuffer = new ArrayList<BufferedImage>();
 		
-		JFrame frame = new JFrame();
-		ImagePanel panel = new ImagePanel();
-
 		// configuring frame
 		frame.setDefaultCloseOperation( WindowConstants.EXIT_ON_CLOSE );
 		frame.setTitle( "Virtual Classroom" );
