@@ -6,7 +6,7 @@ This is a simple screen sharing application written in java.
 * Clone the repository
 
 ```
-$ git clone https://github.com/UltimatePea/ScreenSharer
+$ git clone https://github.com/pranav-kale-01/VirtualClassroom.git
 ```
 
 * Go to the bin folder
