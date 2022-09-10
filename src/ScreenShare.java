@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.MouseInfo;
 import java.awt.Point;
@@ -24,7 +23,6 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.StringTokenizer;
@@ -39,7 +37,9 @@ public class ScreenShare {
 	boolean flag;
 
 	public static void main(String[] args) {
-		new ScreenShare().interactive();
+		ScreenShare s = new ScreenShare();
+		// s.interactive();
+		s.loadGui();
 	}
 
 	private void loadGui() {
@@ -98,48 +98,47 @@ public class ScreenShare {
 
 
 		// Host a meeting menu
-		Button h2 = new Button("Host a Meeting"); 
-		h2.setBounds( 30, 440, 200, 50 );
-		h2.setFont( large ); 
-		h2.addActionListener( new ActionListener() {
+		Button hostMeetingButton = new Button("Host a Meeting"); 
+		hostMeetingButton.setBounds( 30, 440, 200, 50 );
+		hostMeetingButton.setFont( large ); 
+		hostMeetingButton.addActionListener( new ActionListener() {
 			public void actionPerformed( ActionEvent ae ) {
-				intepretCommand("server 400" );
-				// int startPortRange=1024;
-				// int stopPortRange=65365;       
+				// intepretCommand( "server 400" );
+				int startPortRange=1024;
+				int stopPortRange=65365;       
 			
-				// for(int i=startPortRange; i <=stopPortRange; i++)
-				// {
-				// 	ServerSocket ser=null;
+				for(int i=startPortRange; i <=stopPortRange; i++)
+				{
+					ServerSocket ser=null;
 
-				// 	try
-				// 	{
-				// 		ser = new ServerSocket(i);
-				// 		final int port = i;
-				// 		ser.close();
+					try
+					{
+						ser = new ServerSocket(i);
+						final int port = i;
+						ser.close();
 
-				// 		// port avaialable, Hosting the meeting... 
-				// 		System.out.println("Hosting the meeting on port " + i );
-
-				// 		server( port );
+						// port avaialable, Hosting the meeting... 
+						System.out.println("Hosting the meeting on port " + i );
+						server( port );
 						
-				// 		// Thread t1 = new Thread() {
-				// 		// 	public void run() {
-				// 		// 		server( port );
-				// 		// 	}
-				// 		// };
+						// Thread t1 = new Thread() {
+						// 	public void run() {
+						// 		server( port );
+						// 	}
+						// };
 
-				// 		// t1.start();
+						// t1.start();
 
-				// 		return;
-				// 	}
-				// 	catch (Exception e)
-				// 	{	
-				// 		e.printStackTrace(); 
-				// 	}
-				// }
+						return;
+					}
+					catch (Exception e)
+					{	
+						e.printStackTrace(); 
+					}
+				}
 			}
 		});
-		f.add( h2 );
+		f.add( hostMeetingButton );
 	}	
 
 	private void interactive() {
@@ -214,9 +213,6 @@ public class ScreenShare {
 		try 
 		{
 			long startTime = System.currentTimeMillis();
-			Random rand = new Random();
-
-			int frameCount = 0 ;
 			while(flag) {
 				socket = new Socket(serverAddr, port);
 				ObjectInputStream inputStream = new ObjectInputStream( socket.getInputStream() );
@@ -224,7 +220,7 @@ public class ScreenShare {
 				panel.repaint();
 		
 				if( startTime > 1000 ){
-					renderBuffer = ( ArrayList<BufferedImage> ) imageBuffer.clone();
+					renderBuffer =  (ArrayList<BufferedImage>) imageBuffer.clone();
 					
 					imageBuffer.clear();
 
@@ -266,6 +262,8 @@ public class ScreenShare {
 				try{
 					socket = server.accept();
 					InetAddress addr = socket.getInetAddress();
+
+					System.out.println( addr );
 					
 					ObjectOutputStream outstream = new ObjectOutputStream(socket.getOutputStream());
 					BufferedImage img;
@@ -280,8 +278,7 @@ public class ScreenShare {
 					socket.close();
 				} 
 				catch( SocketException se ) {
-					System.out.println("SE");
-					throw se;
+					System.out.println("Connection closed from client side");
 				}  
 				catch (IOException e) {
 					e.printStackTrace();
